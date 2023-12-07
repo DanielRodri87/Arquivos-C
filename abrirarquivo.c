@@ -10,13 +10,10 @@ int main(void)
         printf("Erro ao tentar abrir o arquivo\n");
     }
 
-    char nome[20];
-    int dia, mes, ano, idade;
+    int ano;
 
-    fscanf(fp, "%s %d %d %d %d", nome, &idade, &dia, &mes, &ano);
-    printf("Nome: %s\n", nome);
-    printf("Idade: %d\n", idade);
-    printf("Data de nascimento: %d/%d/%d\n", dia, mes, ano);
+    fscanf(fp, "daniel 18 26 05 2005", &ano);
+    printf("Data de nascimento: %d\n", ano);
 
     return 0;
 }
