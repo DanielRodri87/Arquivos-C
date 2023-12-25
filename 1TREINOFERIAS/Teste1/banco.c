@@ -66,7 +66,7 @@ void criarConta(FILE *arq)
     switch (strcmp(criarSenha, criarSenha2))
     {
     case 0:
-        fprintf(arq, "%s %s %f\n", criarUser, criarSenha, 0.0);
+        fprintf(arq, "%s %s\n", criarUser, criarSenha);
         printf("Conta criada com sucesso!\n");
         break;
 
