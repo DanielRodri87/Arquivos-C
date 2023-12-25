@@ -4,6 +4,7 @@
 
 void criarConta(FILE *arq);
 void realizarLogin(FILE *arq);
+void depositar(FILE *arq);
 
 int main()
 {
@@ -20,7 +21,7 @@ int main()
             return 1;
         }
 
-        printf("MENU DO BANCO\n1 - Criar conta\n2 - Login\n9 - Sair\n--> ");
+        printf("MENU DO BANCO\n1 - Criar conta\n2 - Login\n3 - Depositar\n9 - Sair\n--> ");
         scanf("%d", &op);
 
         switch (op)
@@ -31,6 +32,10 @@ int main()
 
         case 2:
             realizarLogin(arq);
+            break;
+        
+        case 3:
+            depositar(arq);
             break;
 
         case 9:
@@ -61,7 +66,7 @@ void criarConta(FILE *arq)
     switch (strcmp(criarSenha, criarSenha2))
     {
     case 0:
-        fprintf(arq, "%s %s\n", criarUser, criarSenha);
+        fprintf(arq, "%s %s %f\n", criarUser, criarSenha, 0.0);
         printf("Conta criada com sucesso!\n");
         break;
 
@@ -114,3 +119,43 @@ void realizarLogin(FILE *arq)
         criarConta(arq);
     }
 }
+
+void depositar(FILE *arq)
+{
+    char usuario[100];
+    float valor;
+
+    printf("Informe o seu usuário: ");
+    scanf("%s", usuario);
+
+    fseek(arq, 0, SEEK_SET);
+
+    int encontrado = 0;
+    char usuarioArquivo[100], senhaArquivo[100];
+    float saldoArquivo;
+
+    while (fscanf(arq, "%s %s %f", usuarioArquivo, senhaArquivo, &saldoArquivo) == 3)
+    {
+        if (strcmp(usuarioArquivo, usuario) == 0)
+        {
+            encontrado = 1;
+            break;
+        }
+    }
+
+    if (encontrado)
+    {
+        printf("Informe o valor a ser depositado: ");
+        scanf("%f", &valor);
+
+        fseek(arq, -sizeof(float), SEEK_CUR);
+        fprintf(arq, " %f\n", saldoArquivo + valor);
+
+        printf("Depósito realizado com sucesso!\n");
+    }
+    else
+    {
+        printf("Usuário não encontrado. Operação de depósito cancelada.\n");
+    }
+}
+
