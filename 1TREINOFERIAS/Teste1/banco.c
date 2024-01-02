@@ -3,50 +3,60 @@
 #include <string.h>
 #include <conio.h>
 
+#define MAX_USUARIO 100
+#define MAX_SENHA 100
+
+typedef struct {
+    char usuario[MAX_USUARIO];
+    char senha[MAX_SENHA];
+    float saldo;
+} Conta;
 
 void criarConta(FILE *arq);
 void realizarLogin(FILE *arq);
 void depositar(FILE *arq);
+void consultarsaudo(FILE *arq);
+
 
 int main()
 {
     FILE *arq;
     int op;
 
-    while (1)
-    {
-        arq = fopen("arquivo.txt", "a+");
+    while (1) {
+        arq = fopen("arquivo.txt", "r+");
 
-        if (arq == NULL)
-        {
+        if (arq == NULL) {
             printf("Erro ao abrir o arquivo.\n");
             return 1;
         }
 
-
-        printf("MENU DO BANCO\n1 - Criar conta\n2 - Login\n3 - Depositar\n9 - Sair\n--> ");
+        printf("MENU DO BANCO\n1 - Criar conta\n2 - Login\n3 - Depositar\n4 - Consultar saldo\n9 - Sair\n--> ");
         scanf("%d", &op);
 
-        switch (op)
-        {
-        case 1:
-            criarConta(arq);
-            break;
+        switch (op) {
+            case 1:
+                criarConta(arq);
+                break;
 
-        case 2:
-            realizarLogin(arq);
-            break;
-        
-        case 3:
-            depositar(arq);
-            break;
+            case 2:
+                realizarLogin(arq);
+                break;
 
-        case 9:
-            fclose(arq);
-            return 0;
+            case 3:
+                depositar(arq);
+                break;
+            
+            case 4:
+                consultarsaudo(arq);
+                break;
 
-        default:
-            printf("Opção inválida. Tente novamente.\n");
+            case 9:
+                fclose(arq);
+                return 0;
+
+            default:
+                printf("Opção inválida. Tente novamente.\n");
         }
 
         fclose(arq);
@@ -62,9 +72,10 @@ void lerSenha(char *senha, int tamanho)
 
     while (1)
     {
-        ch = getch(); 
+        ch = getch();
 
-        if (ch == 13) 
+
+        if (ch == 13)
             break;
 
         printf("*");
@@ -76,75 +87,55 @@ void lerSenha(char *senha, int tamanho)
             break;
     }
 
-    senha[i] = '\0'; 
+    senha[i] = '\0';
 }
-
 
 void criarConta(FILE *arq)
 {
-    char criarSenha[100], criarSenha2[100], criarUser[100];
+    Conta novaConta;
 
     printf("Informe seu usuário: ");
-    scanf("%s", criarUser);
+    scanf("%s", novaConta.usuario);
+
     printf("Informe sua senha: ");
-    lerSenha(criarSenha, sizeof(criarSenha));
-    printf("\n");
-    printf("Informe novamente a sua senha: ");
-    lerSenha(criarSenha2, sizeof(criarSenha2));
+    lerSenha(novaConta.senha, MAX_SENHA);
     printf("\n");
 
-    switch (strcmp(criarSenha, criarSenha2))
-    {
-    case 0:
-        fprintf(arq, "%s %s %.2f\n", criarUser, criarSenha, 0.0);
-        printf("Conta criada com sucesso!\n");
-        break;
-
-    default:
-        printf("Senhas distintas. Tente novamente.\n");
-        break;
-    }
+    fprintf(arq, "%s %s %d\n", novaConta.usuario, novaConta.senha, 0);
+    printf("Conta criada com sucesso!\n");
 }
-
 
 void realizarLogin(FILE *arq)
 {
-    char senhalogin[100], userlogin[100];
     int oplogin;
     printf("Possui conta aqui? 1 - Sim | 2 - Não: ");
     scanf("%d", &oplogin);
+
     if (oplogin == 1)
     {
+        Conta loginConta;
         printf("Informe o seu usuário: ");
-        scanf("%s", userlogin);
+        scanf("%s", loginConta.usuario);
+
         printf("Informe a sua senha: ");
-        lerSenha(senhalogin, sizeof(senhalogin));
+        lerSenha(loginConta.senha, MAX_SENHA);
         printf("\n");
 
         fseek(arq, 0, SEEK_SET);
 
-        int encontrado = 0;
-        char usuarioArquivo[100], senhaArquivo[100];
+        Conta arquivoConta;
 
-        while (fscanf(arq, "%s %s", usuarioArquivo, senhaArquivo) == 2)
+        while (fscanf(arq, "%s %s %f", arquivoConta.usuario, arquivoConta.senha, &arquivoConta.saldo) == 3)
         {
-            if (strcmp(usuarioArquivo, userlogin) == 0 && strcmp(senhaArquivo, senhalogin) == 0)
+            if (strcmp(arquivoConta.usuario, loginConta.usuario) == 0 &&
+                strcmp(arquivoConta.senha, loginConta.senha) == 0)
             {
-                encontrado = 1;
-                break;
+                printf("Login bem-sucedido!\n");
+                return;
             }
         }
 
-        switch (encontrado)
-        {
-        case 1:
-            printf("Login bem-sucedido!\n");
-            break;
-
-        default:
-            printf("Usuário ou senha incorretos. Tente novamente.\n");
-            break;
-        }
+        printf("Usuário ou senha incorretos. Tente novamente.\n");
     } else
     {
         printf("Crie sua conta\n");
@@ -152,42 +143,61 @@ void realizarLogin(FILE *arq)
     }
 }
 
-void depositar(FILE *arq)
-{
-    char usuario[100];
+void depositar(FILE *arq) {
+    char usuario[MAX_USUARIO];
     float valor;
 
     printf("Informe o seu usuário: ");
     scanf("%s", usuario);
 
-    fseek(arq, 0, SEEK_SET);
+    fseek(arq, 0, SEEK_SET); //Lembre-se Daniel, isso volta para o início do arquivo
 
-    int encontrado = 0;
-    char usuarioArquivo[100], senhaArquivo[100];
-    float saldoArquivo;
+    Conta conta;
 
-    while (fscanf(arq, "%s %s %f", usuarioArquivo, senhaArquivo, &saldoArquivo) == 3)
+    while (fscanf(arq, "%s %s %f", conta.usuario, conta.senha, &conta.saldo) == 3)
     {
-        if (strcmp(usuarioArquivo, usuario) == 0)
+        if (strcmp(conta.usuario, usuario) == 0)
         {
-            encontrado = 1;
-            break;
+            printf("Informe o valor a ser depositado: ");
+            scanf("%f", &valor);
+
+            fseek(arq, -sizeof(float), SEEK_CUR);
+            fprintf(arq, " %.2f\n", conta.saldo + valor);
+
+            printf("Depósito realizado com sucesso!\n");
+            return;
         }
     }
 
-    if (encontrado)
-    {
-        printf("Informe o valor a ser depositado: ");
-        scanf("%f", &valor);
-
-        fseek(arq, -sizeof(float), SEEK_CUR);
-        fprintf(arq, " %f\n", saldoArquivo + valor);
-
-        printf("Depósito realizado com sucesso!\n");
-    }
-    else
-    {
-        printf("Usuário não encontrado. Operação de depósito cancelada.\n");
-    }
+    printf("Usuário não encontrado. Operação de depósito cancelada.\n");
 }
 
+void consultarsaudo(FILE *arq)
+{
+    // peço o usuario e a senha para verificar o saudo no arquivo.txt
+    char usuario[MAX_USUARIO];
+    char senha[MAX_SENHA];
+    float saldo;
+
+    printf("Informe o seu usuário: ");
+    scanf("%s", usuario);
+
+    printf("Informe a sua senha: ");
+    lerSenha(senha, MAX_SENHA);
+    printf("\n");
+
+    fseek(arq, 0, SEEK_SET); //Lembre-se Daniel, isso volta para o início do arquivo
+
+    Conta conta;
+
+    while (fscanf(arq, "%s %s %f", conta.usuario, conta.senha, &conta.saldo) == 3)
+    {
+        if (strcmp(conta.usuario, usuario) == 0)
+        {
+            printf("Seu saldo é: %.2f\n", conta.saldo);
+            return;
+        }
+        else 
+            printf("Usuário não encontrado. Operação de consulta de saldo cancelada.\n");
+    }
+}
