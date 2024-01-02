@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <conio.h>
+
 
 void criarConta(FILE *arq);
 void realizarLogin(FILE *arq);
@@ -20,6 +22,7 @@ int main()
             printf("Erro ao abrir o arquivo.\n");
             return 1;
         }
+
 
         printf("MENU DO BANCO\n1 - Criar conta\n2 - Login\n3 - Depositar\n9 - Sair\n--> ");
         scanf("%d", &op);
@@ -52,6 +55,31 @@ int main()
     return 0;
 }
 
+void lerSenha(char *senha, int tamanho)
+{
+    int i = 0;
+    char ch;
+
+    while (1)
+    {
+        ch = getch(); 
+
+        if (ch == 13) 
+            break;
+
+        printf("*");
+
+        senha[i] = ch;
+        i++;
+
+        if (i == tamanho - 1)
+            break;
+    }
+
+    senha[i] = '\0'; 
+}
+
+
 void criarConta(FILE *arq)
 {
     char criarSenha[100], criarSenha2[100], criarUser[100];
@@ -59,9 +87,11 @@ void criarConta(FILE *arq)
     printf("Informe seu usuário: ");
     scanf("%s", criarUser);
     printf("Informe sua senha: ");
-    scanf("%s", criarSenha);
+    lerSenha(criarSenha, sizeof(criarSenha));
+    printf("\n");
     printf("Informe novamente a sua senha: ");
-    scanf("%s", criarSenha2);
+    lerSenha(criarSenha2, sizeof(criarSenha2));
+    printf("\n");
 
     switch (strcmp(criarSenha, criarSenha2))
     {
@@ -76,6 +106,7 @@ void criarConta(FILE *arq)
     }
 }
 
+
 void realizarLogin(FILE *arq)
 {
     char senhalogin[100], userlogin[100];
@@ -87,7 +118,8 @@ void realizarLogin(FILE *arq)
         printf("Informe o seu usuário: ");
         scanf("%s", userlogin);
         printf("Informe a sua senha: ");
-        scanf("%s", senhalogin);
+        lerSenha(senhalogin, sizeof(senhalogin));
+        printf("\n");
 
         fseek(arq, 0, SEEK_SET);
 
