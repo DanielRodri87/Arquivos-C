@@ -201,3 +201,4 @@ void consultarsaudo(FILE *arq)
             printf("Usuário não encontrado. Operação de consulta de saldo cancelada.\n");
     }
 }
+
