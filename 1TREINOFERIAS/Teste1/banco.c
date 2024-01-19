@@ -65,6 +65,7 @@ int main()
     return 0;
 }
 
+
 void lerSenha(char *senha, int tamanho)
 {
     int i = 0;
@@ -103,7 +104,10 @@ void criarConta(FILE *arq)
 
     fprintf(arq, "%s %s %d\n", novaConta.usuario, novaConta.senha, 0);
     printf("Conta criada com sucesso!\n");
+
 }
+
+
 
 void realizarLogin(FILE *arq)
 {
@@ -199,6 +203,7 @@ void consultarsaudo(FILE *arq)
         }
         else 
             printf("Usuário não encontrado. Operação de consulta de saldo cancelada.\n");
+ 
+ 
     }
 }
-
